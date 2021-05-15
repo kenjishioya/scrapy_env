@@ -1,0 +1,1 @@
+INSERT INTO `quotes` (`quote`, `author`, `tags`) VALUES (%s, %s, %s)

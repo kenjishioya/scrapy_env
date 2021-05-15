@@ -1,0 +1,43 @@
+version: "3"
+services:
+  scrapy_mysql:
+    # m1 macの場合コメントアウトを外す
+    # platform: linux/x86_64
+    image: mysql:8.0
+    volumes:
+      - ./db/mysql/store:/var/lib/mysql
+      - ./db/mysql/logs:/var/log/mysql
+      - ./db/mysql/config/my.cnf:/etc/mysql/conf.d/my.cnf
+    container_name: scrapy_mysql
+    networks:
+      - scrapy-net
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DB_NAME}
+      - MYSQL_USER=${MYSQL_DB_USER}
+      - MYSQL_PASSWORD=${MYSQL_DB_PASS}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_DB_PORT}
+      - TZ=${TZ}
+    ports:
+      - ${MYSQL_DB_PORT}:3306
+  scrapy_exec:
+    image: scrapy_env
+    container_name: scrapy_exec
+    networks:
+      - scrapy-net
+    env_file:
+      - .env
+    working_dir: '/src/'
+    volumes:
+      - ./src:/src
+    tty: true
+  splash:
+    image: scrapinghub/splash
+    container_name: splash
+    networks:
+      - scrapy-net
+    ports:
+      - ${SPLASH_PORT}:8050
+networks:
+  scrapy-net:
+    name: scrapy-net
+    driver: bridge
